@@ -11,10 +11,17 @@ export default async function handler(request, response) {
   if (request.method === "GET") {
     const location = await Location.findById(id);
     response.status(200).json(location);
-    console.log({ location });
-  }
-
-  if (!location) {
-    return response.status(404).json({ status: "Not found" });
+    if (!location) {
+      return response.status(404).json({ status: "Not found" });
+    }
+  } else if (request.method === "PATCH") {
+    const updateLocation = request.body;
+    await Location.findByIdAndUpdate(id, updateLocation);
+    if (updateLocation) {
+      return response.status(200).json({ status: `Location ${id} updated!` });
+    }
+  } else if (request.method === "DELETE") {
+    await Location.findByIdAndDelete(id);
+    return response.status(200).json({ status: `Location ${id} deleted!` });
   }
 }

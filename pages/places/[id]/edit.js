@@ -1,20 +1,42 @@
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import useSWR from 'swr';
-import Form from '../../../components/Form.js';
-import { StyledLink } from '../../../components/StyledLink.js';
+import { useRouter } from "next/router";
+import Link from "next/link";
+import useSWR from "swr";
+import Form from "../../../components/Form.js";
+import { StyledLink } from "../../../components/StyledLink.js";
+import { useState } from "react";
 
 export default function EditPage() {
+  // const [isEditMode, setIsEditMode] = useState(false);
   const router = useRouter();
   const { isReady } = router;
   const { id } = router.query;
+  const { mutate } = useSWR(`/api/places`);
   const { data: place, isLoading, error } = useSWR(`/api/places/${id}`);
-
-  async function editPlace(place) {
-    console.log('Place edited (but not really...');
-  }
-
   if (!isReady || isLoading || error) return <h2>Loading...</h2>;
+
+  async function editPlace(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const locationData = Object.fromEntries(formData);
+
+    const response = await fetch(`/api/places/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(locationData),
+    });
+
+    if (!response.ok) {
+      console.error(response.status);
+      return;
+    }
+
+    mutate();
+    event.target.reset();
+    router.push("/");
+  }
 
   return (
     <>
@@ -22,7 +44,7 @@ export default function EditPage() {
       <Link href={`/places/${id}`} passHref legacyBehavior>
         <StyledLink justifySelf="start">back</StyledLink>
       </Link>
-      <Form onSubmit={editPlace} formName={'edit-place'} defaultData={place} />
+      <Form onSubmit={editPlace} formName={"edit-place"} defaultData={place} />
     </>
   );
 }
