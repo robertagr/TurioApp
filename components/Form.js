@@ -62,10 +62,10 @@ export default function Form({ onSubmit, formName, defaultData }) {
         type="text"
         defaultValue={defaultData?.mapURL}
       />
-      <Label htmlFor="description">Description</Label>
+      <Label htmlFor="description">Categories</Label>
       <Textarea
-        name="description"
-        id="description"
+        name="categories"
+        id="categories"
         cols="30"
         rows="10"
         defaultValue={defaultData?.description}
